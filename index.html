@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171C26">
+<title>测出和你灵魂适配的那座城市</title>
+<style>
+  :root{
+    --ink:#EFE9DE;
+    --soft:#BBB4A7;
+    --faint:#807B72;
+    --line:rgba(255,255,255,.11);
+    --card:rgba(255,255,255,.045);
+    --gold:#D3B183;
+    --gold-soft:rgba(211,177,131,.16);
+    --serif:"Songti SC","Noto Serif SC",STSong,serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 60% at 50% -10%, #2C3546 0%, rgba(44,53,70,0) 60%),
+      linear-gradient(180deg,#171C26 0%,#1B222E 55%,#151A22 100%);
+    background-attachment:fixed;
+    color:var(--ink);line-height:1.75;min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:430px;margin:0 auto;min-height:100vh;padding:0 24px 48px;position:relative}
+  .screen{display:none;animation:fade .45s ease both}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.screen{animation:none}.bar span,.btrack span{transition:none}}
+
+  /* 首页 */
+  .home{min-height:100vh;padding-top:0;padding-bottom:20px}
+  .screen.home.on{display:flex;flex-direction:column;justify-content:center}
+  .eyebrow{font-size:10.5px;letter-spacing:.28em;color:var(--faint);margin-bottom:22px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,6.8vw,30px);line-height:1.55;margin:0 0 18px;letter-spacing:.01em}
+  h1 em{font-style:normal;color:var(--gold);white-space:nowrap;background:linear-gradient(transparent 68%,var(--gold-soft) 68%)}
+  .sub{font-size:14px;color:var(--soft);margin:0 0 38px;letter-spacing:.01em}
+  .tags{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:38px}
+  .tag{border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:12px;color:var(--soft);line-height:1.6;background:var(--card)}
+  .tag b{display:block;font-size:13px;color:var(--ink);font-weight:600;margin-bottom:2px}
+  .tag i{font-style:normal;color:var(--gold);margin-right:4px}
+  .btn{width:100%;border:1px solid var(--gold);border-radius:16px;padding:17px 0;font-size:15.5px;font-weight:600;letter-spacing:.08em;background:transparent;color:var(--gold);cursor:pointer;font-family:inherit;transition:transform .15s,background .2s}
+  .btn:active{transform:scale(.985);background:var(--gold-soft)}
+  .meta{text-align:center;font-size:11.5px;color:var(--faint);margin:15px 0 28px;letter-spacing:.04em}
+  .fineprint{font-size:10.5px;line-height:1.9;color:var(--faint);text-align:center;margin-top:24px}
+
+  /* 答题 */
+  .quiz{padding-top:28px}
+  .qtop{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+  .back{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--soft);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;font-family:inherit}
+  .back[disabled]{opacity:.22;cursor:default}
+  .counter{font-size:11px;letter-spacing:.14em;color:var(--faint);flex:none}
+  .bar{flex:1;height:2px;background:rgba(255,255,255,.09);border-radius:2px;overflow:hidden}
+  .bar span{display:block;height:100%;width:0;background:var(--gold);transition:width .34s ease}
+  .qtext{font-family:var(--serif);font-weight:600;font-size:21.5px;line-height:1.65;margin:0 0 26px;min-height:72px;letter-spacing:.01em}
+  .opts{display:flex;flex-direction:column;gap:11px}
+  .opt{text-align:left;width:100%;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 16px 14px;display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.65;color:var(--ink);font-family:inherit;transition:border-color .18s,background .18s,transform .12s}
+  .opt:active{transform:scale(.994)}
+  .opt .k{flex:none;width:21px;height:21px;border-radius:50%;border:1px solid var(--line);color:var(--faint);font-size:10.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .opt.sel{border-color:var(--gold);background:var(--gold-soft)}
+  .opt.sel .k{border-color:var(--gold);color:var(--gold)}
+  .qhint{text-align:center;font-size:10.5px;color:var(--faint);margin-top:26px;letter-spacing:.04em}
+
+  /* 结果 */
+  .result{padding-top:46px}
+  .rlabel{font-size:10px;letter-spacing:.26em;color:var(--faint);margin-bottom:22px}
+  .rnum{width:64px;height:64px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);font-family:var(--serif);font-size:27px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;background:var(--gold-soft)}
+  .rname{font-family:var(--serif);font-size:34px;font-weight:600;margin:0 0 10px;letter-spacing:.06em}
+  .rtag{font-size:14px;color:var(--gold);margin:0 0 24px;letter-spacing:.02em}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px 19px;font-size:14.5px;line-height:2;color:var(--soft);margin-bottom:28px}
+  .rtitle{font-size:10.5px;letter-spacing:.18em;color:var(--faint);margin:0 0 13px}
+  .bars{display:flex;flex-direction:column;gap:12px;margin-bottom:30px}
+  .brow{font-size:12.5px;color:var(--soft)}
+  .bhead{display:flex;justify-content:space-between;margin-bottom:5px}
+  .bhead span:last-child{color:var(--faint);font-size:11.5px}
+  .btrack{height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+  .btrack span{display:block;height:100%;background:var(--gold);border-radius:3px;width:0;transition:width .85s ease}
+  .result-fine{text-align:left;margin-top:24px;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <section class="screen on home" id="s-home">
+    <div class="eyebrow">SOUL CITY · 灵魂同频</div>
+    <h1>测出和你<em>灵魂适配</em><br>的那座城市</h1>
+    <p class="sub">凭你的审美与生活偏好，匹配和你同频的城市</p>
+
+    <div class="tags">
+      <div class="tag"><b><i>✓</i>生活频率</b>快慢节奏对不对</div>
+      <div class="tag"><b><i>✓</i>审美偏好</b>看不看得上同一种美</div>
+      <div class="tag"><b><i>✓</i>精神角落</b>独处时你在想什么</div>
+      <div class="tag"><b><i>✓</i>灵魂同频</b>哪座城和你最像</div>
+    </div>
+
+    <button class="btn" id="start">点击测试 →</button>
+    <p class="meta">32 道偏好小题 · 约 2 分钟</p>
+    <p class="fineprint">趣味测试仅供娱乐，找到和你灵魂同频的城市</p>
+  </section>
+
+  <section class="screen quiz" id="s-quiz">
+    <div class="qtop">
+      <button class="back" id="back" aria-label="上一题">←</button>
+      <div class="counter" id="counter">01 / 32</div>
+      <div class="bar"><span id="bar"></span></div>
+    </div>
+    <h2 class="qtext" id="qtext"></h2>
+    <div class="opts" id="opts"></div>
+    <p class="qhint">点击选项自动进入下一题</p>
+  </section>
+
+  <section class="screen result" id="s-result">
+    <div class="rlabel">YOUR SOUL CITY</div>
+    <div class="rnum" id="rnum">北</div>
+    <h2 class="rname" id="rname"></h2>
+    <p class="rtag" id="rtag"></p>
+    <div class="rcard" id="rdesc"></div>
+
+    <p class="rtitle">同频城市 TOP 3</p>
+    <div class="bars" id="bars"></div>
+
+    <button class="btn" id="again">再测一次</button>
+    <p class="fineprint result-fine">趣味测试，仅供娱乐，不代表真实城市评价。真正和你合拍的，还是你亲自去过、待过的那座。</p>
+  </section>
+
+</div>
+
+<script>
+const QS = [
+  {q:"你走进一座陌生的城，最先注意到的是", o:[["街区的年代感和老建筑","bj"],["橱窗、灯牌和整条街的秩序","sh"],["路边人说话的腔调和笑意","tj"],["高低起伏、抬头有惊喜的地形","cq"]]},
+  {q:"一个人的时候，你耳机里更常放", o:[["氛围感纯音乐","sh"],["讲段子的播客","tj"],["情绪很满的现场","cq"],["带点年代感的老歌","gz"]]},
+  {q:"你希望这座城市怎么接住你的坏情绪", o:[["用一句玩笑把你逗松","tj"],["用一整个不睡的夜陪你","cq"],["用一碗热汤把你安顿","gz"],["用一下午太阳让你慢慢缓","cd"]]},
+  {q:"哪种夜色更像你", o:[["灯一层层亮起来的立体夜","cq"],["老巷里很安静的风","gz"],["公园边慢慢走的那段路","cd"],["街边还有人唱歌的热闹","cs"]]},
+  {q:"你更想被什么治愈", o:[["一条走到哪吃到哪的老街","gz"],["一棵大树和一张旧椅子","cd"],["一场很吵但很开心的演出","cs"],["一片很亮的海","sz"]]},
+  {q:"你更喜欢哪种光", o:[["树荫下斑驳的光","cd"],["霓虹和招牌的光","cs"],["海面反光的光","sz"],["雨天灰蓝的光","hz"]]},
+  {q:"你相册里存得最多的是", o:[["朋友合照和票根","cs"],["海边日落和跑步轨迹","sz"],["湖、树影、咖啡和书","hz"],["云、山、路边的小花","dl"]]},
+  {q:"你最想拥有的窗景", o:[["干净的楼和远处的灯","sz"],["树，和一条能散步的路","hz"],["山，和一大片天","dl"],["老屋顶和冬天的树","bj"]]},
+  {q:"你更看重哪种质感", o:[["棉麻、浅色、自然","hz"],["宽松、手作、有点旧","dl"],["黑白灰、利落","bj"],["剪裁和细节经得起看","sh"]]},
+  {q:"如果消失一周，你更想", o:[["住进山里，信号差也没关系","dl"],["把博物馆和历史街区走完","bj"],["看展、逛店、吃一顿好的","sh"],["找座老城，和本地人聊天","tj"]]},
+  {q:"你更相信哪种浪漫", o:[["旧书店里翻到一本绝版书","bj"],["有人记得你咖啡要几分糖","sh"],["一句能把人逗笑的废话","tj"],["爬很高的坡，只为看一眼夜景","cq"]]},
+  {q:"周末你更需要补充", o:[["一场展览带来的秩序感","sh"],["一场闲聊带来的松弛","tj"],["一顿辣到出汗的饭","cq"],["一顿慢悠悠的早茶","gz"]]},
+  {q:"你更想遇到哪种邻居", o:[["见面能聊两句，不尴尬","tj"],["热情，会喊你一起吃饭","cq"],["务实，借东西很方便","gz"],["安静，各过各的","cd"]]},
+  {q:"你更想学的是", o:[["做一锅地道的红油","cq"],["煲一锅老火汤","gz"],["泡一手好茶","cd"],["调一杯适合夏天的饮品","cs"]]},
+  {q:"下班后你最想", o:[["去老店吃碗粉，慢慢走回家","gz"],["找个公园坐着，什么都不干","cd"],["约人吃夜宵，聊到很晚","cs"],["去健身或者跑个步","sz"]]},
+  {q:"你更喜欢哪种城市声音", o:[["茶馆里的说话声","cd"],["夜市摊主的吆喝","cs"],["地铁进站和键盘声","sz"],["雨打树叶、自行车铃","hz"]]},
+  {q:"你最想在哪儿发呆", o:[["天台，看整片灯","cs"],["海边，风很大","sz"],["湖边，有长椅","hz"],["院子里，晒着太阳","dl"]]},
+  {q:"你更喜欢的电影画面", o:[["城市夜景，玻璃幕墙反光","sz"],["雨天的湖和一把伞","hz"],["大片田野和远处的山","dl"],["老巷子、红墙、冬天的树","bj"]]},
+  {q:"你更喜欢哪种书店", o:[["有院子，能坐一下午","hz"],["小小的，书是二手的","dl"],["很大，什么书都能找到","bj"],["选品很挑，还有展览和咖啡","sh"]]},
+  {q:"你更想度过的一个晚上", o:[["院子里看星星，早点睡","dl"],["看一场演出，散场后走很久","bj"],["在江边散步，看两岸灯光","sh"],["找个路边摊，坐到收摊","tj"]]},
+  {q:"你挑一家店更看重", o:[["开了很多年的老字号","bj"],["环境和出品都要讲究","sh"],["老板记得你常点什么","tj"],["味道够冲，越辣越香","cq"]]},
+  {q:"你更喜欢哪种雨天", o:[["找家咖啡馆坐一下午","sh"],["在窗边看雨，听楼下聊天","tj"],["等雨停了去吃火锅","cq"],["雨小一点，正好去喝早茶","gz"]]},
+  {q:"你的放松方式是", o:[["和人唠嗑，越聊越轻松","tj"],["出一身汗，再吃一顿","cq"],["逛市场，买点新鲜食材","gz"],["找个茶馆，坐一下午","cd"]]},
+  {q:"你更喜欢的味道", o:[["麻辣，越吃越上头","cq"],["清鲜，吃食材本身","gz"],["微辣带点甜，温和","cd"],["香辣，配冰饮最爽","cs"]]},
+  {q:"你理想的假期长度", o:[["三天，吃几顿好的","gz"],["一周，慢慢待着","cd"],["两天，回来还能再玩一晚","cs"],["周末就够","sz"]]},
+  {q:"你更喜欢哪种建筑", o:[["老街，屋檐低低的","cd"],["商业街，灯很亮","cs"],["高楼，线条干净","sz"],["白墙黛瓦，配一池水","hz"]]},
+  {q:"你更想要的一个下午", o:[["打球，再吃顿烧烤","cs"],["去海边，走到脚酸","sz"],["沿湖骑行","hz"],["院子里晒被子、发呆","dl"]]},
+  {q:"你更喜欢哪种购物场景", o:[["一站式，快进快出","sz"],["小店，慢慢逛","hz"],["市集，看手作和旧物","dl"],["老市场，什么都有","bj"]]},
+  {q:"你更想收到的礼物", o:[["一罐好茶","hz"],["一块手织的布","dl"],["一本绝版书","bj"],["一支小众香水","sh"]]},
+  {q:"你更相信哪种生活感", o:[["推开窗就是山","dl"],["冬天屋里暖和","bj"],["楼下什么都有","sh"],["邻居见面能点头聊两句","tj"]]},
+  {q:"你更喜欢哪种运动", o:[["打球、夜跑","cs"],["海边跑步、骑车","sz"],["沿湖骑行、爬山","hz"],["散步，走到哪算哪","dl"]]},
+  {q:"给这一周打个标签", o:[["充实，走了很多地方","bj"],["精致，安排得刚刚好","sh"],["松弛，笑了很多次","tj"],["热烈，吃了很多顿","cq"]]}
+];
+
+const CITY_ORDER = ['bj','sh','tj','cq','gz','cd','cs','sz','hz','dl'];
+
+const RESULTS = {
+  bj:{n:"北京", c:"北", t:"和你同频的是「厚度」",
+    d:"和你同频的，是那种有厚度的灵魂。你不急着被理解，也不喜欢轻飘飘的热闹。你喜欢在老建筑、旧书和长长的街区里，找到一种被时间托住的感觉。这座城市不讨好谁，但会在某个冬天的下午，让你突然觉得踏实。"},
+  sh:{n:"上海", c:"上", t:"和你同频的是「分寸」",
+    d:"你的灵魂有点讲究。你在意细节、秩序和分寸，喜欢把日子过成有质感的样子。和你同频的，是那份克制里的体面：一杯咖啡的温度，一条街的灯，一场展览之后的安静。"},
+  tj:{n:"天津", c:"天", t:"和你同频的是「松弛」",
+    d:"你的灵魂自带幽默感。你不喜欢把情绪说得很重，更愿意用一句玩笑把尴尬化开。和你同频的，是那种可以坐在路边聊到天黑、老板记得你口味的地方。松弛不是不在乎，是你知道什么值得认真。"},
+  cq:{n:"重庆", c:"重", t:"和你同频的是「热烈」",
+    d:"你的灵魂是有起伏的。你不怕热烈，也不怕情绪浓一点。你喜欢灯火一层层亮起来、路一直往上走的感觉。这座城市和你一样，不藏情绪，累的时候一顿火锅就能把人捞回来。"},
+  gz:{n:"广州", c:"广", t:"和你同频的是「落地」",
+    d:"你的灵魂很落地。你不喜欢空谈，更在意日子顺不顺手、饭好不好吃。和你同频的，是早上有早茶、晚上有一碗热粉的地方。你把生活过得很具体，这本身就是一种难得的清醒。"},
+  cd:{n:"成都", c:"成", t:"和你同频的是「留白」",
+    d:"你的灵魂需要留白。你不是不上进，只是不想把每一天都过成赶路。和你同频的，是允许你发呆、晒太阳、在茶馆坐一下午的地方。慢不是退，是你给自己留的呼吸。"},
+  cs:{n:"长沙", c:"长", t:"和你同频的是「鲜活」",
+    d:"你的灵魂是鲜活的。你容易被热闹点燃，也愿意为一场演出、一顿夜宵跑很远。和你同频的，是夜里还亮着、随时能约到人的地方。你的能量会传染，你在的地方不太会冷场。"},
+  sz:{n:"深圳", c:"深", t:"和你同频的是「向前」",
+    d:"你的灵魂明亮，也一直向前。你喜欢干净、效率、海风和新的可能。和你同频的，不会问你过去怎样，只关心你接下来想去哪。你不怕重新开始，这是你的底气。"},
+  hz:{n:"杭州", c:"杭", t:"和你同频的是「清」",
+    d:"你的灵魂有一点清。你喜欢湖、树影、雨声，也喜欢做得好看、用得顺手的东西。和你同频的，是慢和好可以同时存在的地方。你不需要很热闹，也能把日子过得有滋味。"},
+  dl:{n:"大理", c:"大", t:"和你同频的是「自在」",
+    d:"你的灵魂想被还给自己。山、云、田、风，都会让你觉得没必要那么赶。和你同频的，不催你，也不评价你。你想要的自由，其实只是「今天也可以什么都不做」。"}
+};
+
+const answers = new Array(QS.length).fill(null);
+const picks = new Array(QS.length).fill(null);
+let cur = 0;
+
+const $ = id => document.getElementById(id);
+const screens = {home:$("s-home"), quiz:$("s-quiz"), result:$("s-result")};
+function show(name){
+  Object.values(screens).forEach(s=>s.classList.remove("on"));
+  screens[name].classList.add("on");
+  window.scrollTo(0,0);
+}
+
+function renderQuestion(){
+  const item = QS[cur];
+  $("counter").textContent = String(cur+1).padStart(2,"0") + " / " + QS.length;
+  $("bar").style.width = (cur/QS.length*100) + "%";
+  $("back").disabled = cur === 0;
+  $("qtext").textContent = item.q;
+
+  const box = $("opts");
+  box.innerHTML = "";
+  ["A","B","C","D"].forEach((k,i)=>{
+    const [text,city] = item.o[i];
+    const b = document.createElement("button");
+    b.className = "opt" + (picks[cur] === i ? " sel" : "");
+    b.innerHTML = `<span class="k">${k}</span><span>${text}</span>`;
+    b.addEventListener("click", ()=>{
+      if (b.classList.contains("sel")) return;
+      document.querySelectorAll(".opt").forEach(el=>el.classList.remove("sel"));
+      b.classList.add("sel");
+      picks[cur] = i;
+      answers[cur] = city;
+      setTimeout(()=>{
+        if (cur < QS.length-1){ cur++; renderQuestion(); }
+        else { compute(); }
+      }, 240);
+    });
+    box.appendChild(b);
+  });
+}
+
+function compute(){
+  const score = {};
+  CITY_ORDER.forEach(c=>{ score[c]=0; });
+  answers.forEach(c=>{ if(c) score[c]++; });
+
+  const order = CITY_ORDER.slice().sort((a,b)=>{
+    if (score[b] !== score[a]) return score[b]-score[a];
+    return CITY_ORDER.indexOf(a) - CITY_ORDER.indexOf(b);
+  });
+
+  const top = order[0];
+  const max = score[top];
+
+  $("rnum").textContent = RESULTS[top].c;
+  $("rname").textContent = RESULTS[top].n;
+  $("rtag").textContent = RESULTS[top].t;
+  $("rdesc").textContent = RESULTS[top].d;
+
+  const bars = $("bars");
+  bars.innerHTML = "";
+  order.filter(c=>score[c]>0).slice(0,3).forEach(c=>{
+    const pct = max ? Math.round(score[c]/max*100) : 0;
+    const row = document.createElement("div");
+    row.className = "brow";
+    row.innerHTML = `<div class="bhead"><span>${RESULTS[c].n}</span><span>${score[c]} 分</span></div>
+      <div class="btrack"><span></span></div>`;
+    bars.appendChild(row);
+    requestAnimationFrame(()=>{
+      row.querySelector(".btrack span").style.width = pct + "%";
+    });
+  });
+
+  show("result");
+}
+
+$("start").addEventListener("click", ()=>{
+  cur = 0;
+  answers.fill(null);
+  picks.fill(null);
+  renderQuestion();
+  show("quiz");
+});
+
+$("back").addEventListener("click", ()=>{
+  if (cur === 0) return;
+  cur--;
+  renderQuestion();
+});
+
+$("again").addEventListener("click", ()=>{
+  cur = 0;
+  answers.fill(null);
+  picks.fill(null);
+  show("home");
+});
+
+</script>
+</body>
+</html>
